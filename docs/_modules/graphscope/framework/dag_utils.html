@@ -105,8 +105,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../deployment.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../loading_graph.html">Loading Graphs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../graph_transformation.html">Graph Transformations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../interactive_engine.html">GraphScope Interactive Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../analytics_engine.html">GraphScope Analytical Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interactive_engine.html">GraphScope Interactive Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../learning_engine.html">GraphScope Learning Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../frequently_asked_questions.html">Frequently Asked Questions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developer_guide.html">Developer Guide</a></li>
@@ -1002,16 +1002,14 @@
     <span class="sd">&quot;&quot;&quot;Retrieve graph raw data as a numpy ndarray.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        graph (:class:`Graph`): Source graph.</span>
+<span class="sd">        graph (:class:`graphscope.framework.graph.GraphDAGNode`): Source graph.</span>
 <span class="sd">        selector (str): Select the type of data to retrieve.</span>
 <span class="sd">        vertex_range (str): Specify a range to retrieve.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        An op to convert a graph&#39;s data to numpy ndarray.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">types_pb2</span><span class="o">.</span><span class="n">GRAPH_NAME</span><span class="p">:</span> <span class="n">utils</span><span class="o">.</span><span class="n">s_to_attr</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">key</span><span class="p">),</span>
-    <span class="p">}</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="n">selector</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">config</span><span class="p">[</span><span class="n">types_pb2</span><span class="o">.</span><span class="n">SELECTOR</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">s_to_attr</span><span class="p">(</span><span class="n">selector</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">vertex_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1020,6 +1018,7 @@
         <span class="n">graph</span><span class="o">.</span><span class="n">session_id</span><span class="p">,</span>
         <span class="n">types_pb2</span><span class="o">.</span><span class="n">GRAPH_TO_NUMPY</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">graph</span><span class="o">.</span><span class="n">op</span><span class="p">],</span>
         <span class="n">output_types</span><span class="o">=</span><span class="n">types_pb2</span><span class="o">.</span><span class="n">TENSOR</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">op</span></div>
@@ -1029,16 +1028,14 @@
     <span class="sd">&quot;&quot;&quot;Retrieve graph raw data as a pandas DataFrame.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        graph (:class:`Graph`): Source graph.</span>
+<span class="sd">        graph (:class:`graphscope.framework.graph.GraphDAGNode`): Source graph.</span>
 <span class="sd">        selector (str): Select the type of data to retrieve.</span>
 <span class="sd">        vertex_range (str): Specify a range to retrieve.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        An op to convert a graph&#39;s data to pandas DataFrame.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">types_pb2</span><span class="o">.</span><span class="n">GRAPH_NAME</span><span class="p">:</span> <span class="n">utils</span><span class="o">.</span><span class="n">s_to_attr</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">key</span><span class="p">),</span>
-    <span class="p">}</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">if</span> <span class="n">selector</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">config</span><span class="p">[</span><span class="n">types_pb2</span><span class="o">.</span><span class="n">SELECTOR</span><span class="p">]</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">s_to_attr</span><span class="p">(</span><span class="n">selector</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">vertex_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -1047,6 +1044,7 @@
         <span class="n">graph</span><span class="o">.</span><span class="n">session_id</span><span class="p">,</span>
         <span class="n">types_pb2</span><span class="o">.</span><span class="n">GRAPH_TO_DATAFRAME</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+        <span class="n">inputs</span><span class="o">=</span><span class="p">[</span><span class="n">graph</span><span class="o">.</span><span class="n">op</span><span class="p">],</span>
         <span class="n">output_types</span><span class="o">=</span><span class="n">types_pb2</span><span class="o">.</span><span class="n">DATAFRAME</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">op</span></div>

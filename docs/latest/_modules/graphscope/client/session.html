@@ -105,8 +105,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../deployment.html">Deployment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../loading_graph.html">Loading Graphs</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../graph_transformation.html">Graph Transformations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../interactive_engine.html">GraphScope Interactive Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../analytics_engine.html">GraphScope Analytical Engine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interactive_engine.html">GraphScope Interactive Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../learning_engine.html">GraphScope Learning Engine</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../frequently_asked_questions.html">Frequently Asked Questions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../developer_guide.html">Developer Guide</a></li>
@@ -319,11 +319,9 @@
         <span class="n">context_type</span> <span class="o">=</span> <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;context_type&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">context_type</span> <span class="o">==</span> <span class="s2">&quot;dynamic_vertex_data&quot;</span><span class="p">:</span>
             <span class="c1"># for nx</span>
-            <span class="k">return</span> <span class="n">DynamicVertexDataContext</span><span class="p">(</span>
-                <span class="n">context_dag_node</span><span class="p">,</span> <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;context_key&quot;</span><span class="p">],</span> <span class="n">context_type</span>
-            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">DynamicVertexDataContext</span><span class="p">(</span><span class="n">context_dag_node</span><span class="p">,</span> <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;context_key&quot;</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Context</span><span class="p">(</span><span class="n">context_dag_node</span><span class="p">,</span> <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;context_key&quot;</span><span class="p">],</span> <span class="n">context_type</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">Context</span><span class="p">(</span><span class="n">context_dag_node</span><span class="p">,</span> <span class="n">ret</span><span class="p">[</span><span class="s2">&quot;context_key&quot;</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">wrapper_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">:</span> <span class="n">message_pb2</span><span class="o">.</span><span class="n">RunStepResponse</span><span class="p">):</span>
         <span class="n">rets</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
@@ -875,6 +873,10 @@
         <span class="n">info</span><span class="p">[</span><span class="s2">&quot;engine_config&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine_config</span>
         <span class="k">return</span> <span class="n">info</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">closed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span>
+
     <span class="k">def</span> <span class="nf">eager</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_params</span><span class="p">[</span><span class="s2">&quot;mode&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;eager&quot;</span>
 
@@ -960,6 +962,30 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
             <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">_check_closed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Internal: raise a ValueError if session is closed&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Operation on closed session.&quot;</span> <span class="k">if</span> <span class="n">msg</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">msg</span><span class="p">)</span>
+
+    <span class="c1"># Context manager</span>
+<div class="viewcode-block" id="Session.__enter__"><a class="viewcode-back" href="../../../reference/session.html#graphscope.Session.__enter__">[docs]</a>    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Context management protocol.</span>
+<span class="sd">        Returns self and register self as default session.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_closed</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">as_default</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Session.__exit__"><a class="viewcode-back" href="../../../reference/session.html#graphscope.Session.__exit__">[docs]</a>    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Deregister self from the default session,</span>
+<span class="sd">        close the session and release the resources, ignore all exceptions in close().</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_deregister_default</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="Session.as_default"><a class="viewcode-back" href="../../../reference/session.html#graphscope.Session.as_default">[docs]</a>    <span class="k">def</span> <span class="nf">as_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Obtain a context manager that make this object as default session.</span>
